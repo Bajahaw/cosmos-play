@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cosmos Play</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+        <meta name="author" content="Radhi Bajahaw" />
+        <meta
+            name="description"
+            content="Radhi Bajahaw - Software Engineer Portfolio"
+        />
+        <meta property="og:title" content="Radhi Bajahaw - Software Engineer" />
+        <meta
+            property="og:description"
+            content="Software Engingeer, Frontend, Backend, and DevOps Expert."
+        />
+        <meta
+            property="og:image"
+            content="./images/main-og.png"
+        />
+        <meta property="og:url" content="https://radhi.tech" />
+        <link
+            rel="icon"
+            type="image/png"
+            href="./images/favicon.png"
+        />
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                background: #000;
+                overflow: hidden; /* Important to prevent scrollbars when alien is thrown */
+                width: 100%;
+                height: 100%;
+                font-family: 'Orbitron', sans-serif !important;
+            }
+
+            /* Cosmos App Styles */
+            .cosmos-container {
+                display: flex;
+                gap: 40px;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 4rem;
+            }
+
+            .cosmos-object {
+                border-radius: 50%;
+                cursor: pointer;
+                background-size: cover;
+                background-position: center;
+                /* box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); */
+                position: relative;
+                transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                            opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Size variations reflecting real-world proportions */
+            .cosmos-object.size-sun {
+                width: 520px;
+                height: 520px;
+                /* box-shadow: 0 0 60px rgba(255, 200, 50, 0.6), 0 0 120px rgba(255, 150, 0, 0.3); */
+            }
+
+
+            /* animation: slowRotate 360s linear infinite; */
+            @keyframes slowRotate {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .cosmos-object img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .cosmos-object img.slowRotate {
+                animation: slowRotate 360s linear infinite;
+            }
+
+            .cosmos-object.size-saturn {
+                width: 380px;
+                height: 180px;
+                /* box-shadow: 0 0 40px rgba(210, 180, 140, 0.4); */
+            }
+
+            .cosmos-object.size-earth {
+                width: 280px;
+                height: 280px;
+                /* box-shadow: 0 0 30px rgba(100, 150, 255, 0.4); */
+            }
+
+            .cosmos-object.size-moon {
+                width: 120px;
+                height: 120px;
+                /* box-shadow: 0 0 25px rgba(200, 200, 200, 0.3); */
+            }
+
+            .cosmos-object:hover {
+                transform: scale(1.2);
+                /* box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); */
+            }
+
+            .cosmos-object span {
+                position: absolute;
+                bottom: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #fff;
+                font-size: 0.9rem;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .cosmos-object:hover span {
+                opacity: 1;
+            }
+
+            /* Hide non-active objects by sliding them */
+            body.zoomed .cosmos-object.slide-left {
+                transform: translateX(-150vw);
+                opacity: 0;
+            }
+
+            body.zoomed .cosmos-object.slide-right {
+                transform: translateX(150vw);
+                opacity: 0;
+            }
+
+            /* Active object - calculate position dynamically via JS */
+            .cosmos-object.active {
+                z-index: 10;
+            }
+
+            body.zoomed .container > h1,
+            body.zoomed .container > h2 {
+                transform: translateY(150vh);
+                opacity: 0;
+            }
+
+            .container > h1, .container > h2 {
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .article-view {
+                position: fixed;
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, 0);
+                width: 80%;
+                max-width: 800px;
+                height: 35vh;
+                background: rgba(0, 0, 0, 0.85);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                padding: 20px;
+                color: #fff;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.8s ease 0.8s;
+                overflow-y: hidden;
+                z-index: 5;
+                backdrop-filter: blur(5px);
+            }
+
+            .article-view::-webkit-scrollbar {
+                width: 0px;
+            }
+
+            .article-view::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .article-view::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+            }
+
+            .article-view::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            body.zoomed .article-view {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            /* Expanded reading mode */
+            body.reading-mode .article-view {
+                top: 50%;
+                transform: translate(-50%, -50%);
+                height: 90vh;
+                width: 85%;
+                overflow-y: auto;
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* When exiting reading mode, article should animate first */
+            body.zoomed:not(.reading-mode) .article-view {
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            body.reading-mode .cosmos-object.active {
+                transform: translate(var(--translate-x), calc(var(--translate-y) - 100vh)) scale(2.5) !important;
+                opacity: 0;
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s; /* Delay object animation */
+            }
+
+            /* When exiting reading mode, object comes back after article shrinks */
+            body.zoomed:not(.reading-mode) .cosmos-object.active {
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+            }
+
+            .back-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: #fff;
+                padding: 5px 10px;
+                cursor: pointer;
+                font-family: 'Orbitron', sans-serif;
+                border-radius: 5px;
+            }
+            
+            .back-btn:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 0; /* Ensure canvas is behind other content */
+            }
+
+            #alien-container {
+                width: 100px; /* Container can match alien size or be different */
+                height: 100px; /* Adjust if alien image has different aspect ratio */
+                position: absolute; /* Positioned by JS transform */
+                will-change: transform; /* Performance hint */
+                z-index: 1; /* Ensure alien is above canvas */
+            }
+
+            #alien {
+                /* This is the IMG tag */
+                position: absolute; /* Positioned relative to #alien-container */
+                top: 0;
+                left: 0;
+                cursor: grab;
+                width: 100px;
+                height: auto;
+                animation: gentleSpaceFloat 20s infinite alternate ease-in-out;
+                transform-origin: center center;
+                will-change: transform; /* Image also transforms due to its own animation */
+            }
+
+            /* Pause the IMG's animation when its CONTAINER is being dragged */
+            #alien-container.dragging #alien {
+                cursor: grabbing;
+                animation-play-state: paused !important;
+            }
+
+            @keyframes gentleSpaceFloat {
+                0% {
+                    transform: translate(0px, 0px) rotate(0deg) scale(1);
+                }
+                25% {
+                    transform: translate(20px, 10px) rotate(10deg) scale(0.95); /* Reduced translation for subtler float */
+                }
+                50% {
+                    transform: translate(-5px, 15px) rotate(20deg) scale(1);
+                }
+                75% {
+                    transform: translate(5px, -10px) rotate(-10deg) scale(1.05);
+                }
+                100% {
+                    transform: translate(0px, 0px) rotate(0deg) scale(1);
+                }
+            }
+
+            .container {
+                /* For text content */
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                text-align: center;
+                z-index: 2; /* Text above alien and canvas */
+                animation: floatText 5s ease-in-out infinite;
+                transform: translate(
+                    -50%,
+                    -50%
+                ); /* Ensure this is applied for centering */
+            }
+
+            @keyframes floatText {
+                0% {
+                    transform: translate(-50%, -50%) translateY(0);
+                }
+                50% {
+                    transform: translate(-50%, -50%) translateY(-5px);
+                }
+                100% {
+                    transform: translate(-50%, -50%) translateY(0);
+                }
+            }
+
+            h1 {
+                font-size: 3rem;
+                margin: 0;
+                color: #fff;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                margin: 0.5rem 0;
+                color: #ccc;
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+            }
+
+            .links {
+                margin-top: 1rem;
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+            }
+
+            a {
+                color: #ccc;
+            }
+
+            .links a {
+                background: rgba(255, 255, 255, 0.2);
+                padding: 8px 15px;
+                border-radius: 30px;
+                text-decoration: none;
+                transition:
+                    transform 0.3s,
+                    background 0.3s;
+            }
+
+            .links a:hover {
+                transform: scale(1.1);
+                background: rgba(255, 255, 255, 0.3);
+            }
+            small {
+                position: absolute;
+                bottom: 10px; /* Adjusted for better visibility */
+                left: 50%;
+                color: #aaa;
+                text-wrap: nowrap;
+                transform: translateX(
+                    -50%
+                ); /* Only X transform needed if bottom is set */
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+                z-index: 2;
+            }
+
+            /* Audio Control Button */
+            .audio-control {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: #fff;
+                font-size: 1.5rem;
+                cursor: pointer;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(5px);
+            }
+
+            .audio-control:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: scale(1.1);
+            }
+
+            .audio-control.muted {
+                opacity: 0.5;
+            }
+
+            /* Start overlay for user interaction */
+            .start-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                cursor: pointer;
+                transition: opacity 0.5s ease;
+            }
+
+            .start-overlay.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .start-overlay h2 {
+                color: #fff;
+                font-size: 2rem;
+                margin-bottom: 1rem;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+
+            .start-overlay p {
+                color: #aaa;
+                font-size: 1rem;
+            }
+
+            .start-btn {
+                margin-top: 2rem;
+                padding: 15px 40px;
+                font-size: 1.2rem;
+                font-family: 'Orbitron', sans-serif;
+                background: rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                color: #fff;
+                border-radius: 50px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .start-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Start Overlay for Audio Permission -->
+        <div class="start-overlay" id="start-overlay">
+            <h2>🌌 Cosmos Play</h2>
+            <p>An immersive space exploration experience</p>
+            <button class="start-btn" onclick="startExperience()">Enter the Cosmos</button>
+        </div>
+
+        <!-- Audio Elements -->
+        <audio id="bg-music" loop preload="auto">
+            <source src="./audio/background-music.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="click-sound" preload="auto">
+            <source src="./audio/click-sound.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="whoosh-sound" preload="auto">
+            <source src="./audio/whoosh-sound.mp3" type="audio/mpeg">
+        </audio>
+
+        <!-- Audio Control Button -->
+        <button class="audio-control" id="audio-toggle" onclick="toggleAudio()" title="Toggle Sound">
+            🔊
+        </button>
+
+        <canvas id="starfield"></canvas>
+        <div id="alien-container">
+            <img
+                id="alien"
+                src="./images/astronaut.png"
+                alt="Astronaut"
+            />
+        </div>
+        <div class="container" id="content">
+            <div class="cosmos-container">
+                <!-- <div class="cosmos-object size-sun" id="sun" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg/1200px-The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg');" onclick="openObject('sun')"> -->
+                <div class="cosmos-object size-sun" id="sun" onclick="openObject('sun')">
+                    <img src="./images/sun.png" alt="Sun" class="slowRotate">
+                    <span>Sun</span>
+                </div>
+                <div class="cosmos-object size-earth" id="earth" onclick="openObject('earth')">
+                    <img src="./images/earth.png" alt="Earth" class="slowRotate">
+                    <span>Earth</span>
+                </div>
+                <div class="cosmos-object size-moon" id="moon" onclick="openObject('moon')">
+                    <img src="./images/moon.jpg" alt="Moon" class="">
+                    <span>Moon</span>
+                </div>
+                <div class="cosmos-object size-saturn" id="saturn" onclick="openObject('saturn')">
+                    <img src="./images/saturn.png" alt="Saturn" >
+                    <span>Saturn</span>
+                </div>
+            </div>
+            <h1>Cosmos Play</h1>
+            <h2>A playground for cosmos informative discovery</h2>
+        </div>
+
+        <div class="article-view" id="article-view">
+            <button class="back-btn" onclick="closeObject()">X</button>
+            <h2 id="article-title">Object Name</h2>
+            <div id="article-content">
+                <p>Loading content...</p>
+            </div>
+        </div>
+        <script>
+            // Starfield animation
+            const canvas = document.getElementById("starfield");
+            const ctx = canvas.getContext("2d");
+            let width = window.innerWidth,
+                height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            const stars = [];
+            const numStars = 300;
+            for (let i = 0; i < numStars; i++) {
+                const angle = Math.random() * 2 * Math.PI;
+                const distance =
+                    (Math.random() * Math.max(width, height)) / 1.2; // Ensure stars are spread out
+                stars.push({
+                    x: distance * Math.cos(angle),
+                    y: distance * Math.sin(angle),
+                    size: Math.random() * 1.5 + 0.5,
+                    // Add individual rotation speed for a twinkling effect (optional)
+                    rotationSpeed: (Math.random() - 0.5) * 0.0002,
+                });
+            }
+            let starfieldCenterX = width / 2;
+            let starfieldCenterY = height / 2;
+            let globalStarRotation = 0;
+
+            function animateStars() {
+                globalStarRotation += 0.0001; // Slow global rotation
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = "gray"; // Star color
+
+                stars.forEach((star) => {
+                    // Apply global rotation and individual star's own subtle rotation if any
+                    const rotatedX =
+                        star.x * Math.cos(globalStarRotation) -
+                        star.y * Math.sin(globalStarRotation);
+                    const rotatedY =
+                        star.x * Math.sin(globalStarRotation) +
+                        star.y * Math.cos(globalStarRotation);
+
+                    ctx.beginPath();
+                    ctx.arc(
+                        starfieldCenterX + rotatedX,
+                        starfieldCenterY + rotatedY,
+                        star.size,
+                        0,
+                        Math.PI * 2,
+                    );
+                    ctx.fill();
+                });
+                requestAnimationFrame(animateStars);
+            }
+
+            animateStars();
+
+            window.addEventListener("resize", () => {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                starfieldCenterX = width / 2; // Recalculate center on resize
+                starfieldCenterY = height / 2;
+                // Optionally, reinitialize stars or adjust their positions based on new dimensions
+            });
+
+            // Alien drag and drop logic
+            document.addEventListener("DOMContentLoaded", () => {
+                const alienImageEl = document.getElementById("alien");
+                const alienContainerEl =
+                    document.getElementById("alien-container");
+
+                if (!alienImageEl || !alienContainerEl) {
+                    console.error("Alien elements not found!");
+                    return;
+                }
+
+                // Set initial position for the container (bottom-left corner)
+                // This ensures it doesn't start at 0,0 if not positioned by CSS
+                const initialContainerX = 20; // 20px from left edge
+                const initialContainerY =
+                    window.innerHeight - alienContainerEl.offsetHeight - 20; // 20px from bottom
+                alienContainerEl.style.transform = `translate(${initialContainerX}px, ${initialContainerY}px)`;
+
+                let isDragging = false;
+                // For calculating offset of click within the container
+                let clickInContainerX, clickInContainerY;
+
+                // For throw physics
+                let velocityX = 0;
+                let velocityY = 0;
+                let lastMouseX, lastMouseY;
+                let lastTimestamp;
+                const damping = 0.998; // Friction effect (0 to 1, lower is more friction)
+                const throwVelocityScale = 1000; // Increased divisor to reduce throw speed
+                let throwAnimationId;
+
+                // Event listeners for starting drag (mouse and touch)
+                alienImageEl.addEventListener("mousedown", dragStart);
+                alienImageEl.addEventListener("touchstart", dragStart, {
+                    passive: false,
+                });
+
+                // Global listeners for moving and ending drag
+                document.addEventListener("mousemove", drag);
+                document.addEventListener("touchmove", drag, {
+                    passive: false,
+                });
+                document.addEventListener("mouseup", dragEnd);
+                document.addEventListener("touchend", dragEnd);
+                document.addEventListener("mouseleave", dragEnd); // End drag if mouse leaves window
+
+                function dragStart(e) {
+                    e.preventDefault();
+
+                    if (throwAnimationId) {
+                        cancelAnimationFrame(throwAnimationId);
+                        throwAnimationId = null;
+                    }
+
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+
+                    // Get container's current position
+                    const containerRect =
+                        alienContainerEl.getBoundingClientRect();
+
+                    // Calculate where the click/touch occurred relative to the container's top-left
+                    clickInContainerX = clientX - containerRect.left;
+                    clickInContainerY = clientY - containerRect.top;
+
+                    isDragging = true;
+                    alienContainerEl.classList.add("dragging"); // Pauses CSS animation on alienImageEl via CSS rule
+
+                    lastMouseX = clientX;
+                    lastMouseY = clientY;
+                    lastTimestamp = performance.now();
+                    velocityX = 0;
+                    velocityY = 0;
+                }
+
+                function drag(e) {
+                    if (isDragging) {
+                        e.preventDefault();
+
+                        const clientX = e.clientX || e.touches[0].clientX;
+                        const clientY = e.clientY || e.touches[0].clientY;
+
+                        // New top-left for the container
+                        let newContainerX = clientX - clickInContainerX;
+                        let newContainerY = clientY - clickInContainerY;
+
+                        const now = performance.now();
+                        const dt = (now - lastTimestamp) / 1000; // delta time in seconds
+
+                        if (dt > 0) {
+                            velocityX =
+                                (clientX - lastMouseX) /
+                                dt /
+                                throwVelocityScale;
+                            velocityY =
+                                (clientY - lastMouseY) /
+                                dt /
+                                throwVelocityScale;
+                        }
+
+                        lastMouseX = clientX;
+                        lastMouseY = clientY;
+                        lastTimestamp = now;
+
+                        setContainerTranslate(newContainerX, newContainerY);
+                    }
+                }
+
+                function dragEnd(e) {
+                    if (!isDragging) return;
+
+                    isDragging = false;
+                    alienContainerEl.classList.remove("dragging"); // Resumes CSS animation on alienImageEl
+
+                    if (
+                        Math.abs(velocityX) > 0.1 ||
+                        Math.abs(velocityY) > 0.1
+                    ) {
+                        // Adjusted threshold
+                        // Get current position from transform for the container
+                        const currentTransform =
+                            window.getComputedStyle(alienContainerEl).transform;
+                        let currentTx = 0,
+                            currentTy = 0;
+
+                        if (currentTransform && currentTransform !== "none") {
+                            // DOMMatrix is more robust for parsing transform
+                            const matrix = new DOMMatrix(currentTransform);
+                            currentTx = matrix.m41; // translateX
+                            currentTy = matrix.m42; // translateY
+                        } else {
+                            // Fallback if somehow no transform (should not happen if drag occurred)
+                            // This part would need currentX, currentY from the drag function if it were the case
+                            // but setContainerTranslate ensures a transform is set.
+                            const rect =
+                                alienContainerEl.getBoundingClientRect();
+                            currentTx = rect.left;
+                            currentTy = rect.top;
+                        }
+                        throwAnimation(currentTx, currentTy);
+                    }
+                    // If not throwing, the animation on alienImageEl is already unpaused by classList.remove('dragging')
+                }
+
+                function setContainerTranslate(xPos, yPos) {
+                    alienContainerEl.style.transform = `translate(${xPos}px, ${yPos}px)`;
+                }
+
+                function throwAnimation(startX, startY) {
+                    let x = startX;
+                    let y = startY;
+
+                    function animateFrame() {
+                        x += velocityX;
+                        y += velocityY;
+
+                        velocityX *= damping;
+                        velocityY *= damping;
+
+                        const containerRect =
+                            alienContainerEl.getBoundingClientRect();
+                        if (x < -200) {
+                            x = window.innerWidth + 200 - containerRect.width;
+                            velocityX *= 0.5;
+                        } // Bounce with energy loss
+                        if (x + containerRect.width > window.innerWidth + 200) {
+                            x = -200;
+                            velocityX *= 0.5;
+                        }
+                        if (y < 0) {
+                            y = 0;
+                            velocityY *= -0.5;
+                        }
+                        if (y + containerRect.height > window.innerHeight) {
+                            y = window.innerHeight - containerRect.height;
+                            velocityY *= -0.5;
+                        }
+
+                        setContainerTranslate(x, y);
+
+                        if (
+                            Math.abs(velocityX) < 0.05 &&
+                            Math.abs(velocityY) < 0.05
+                        ) {
+                            // Adjusted threshold
+                            cancelAnimationFrame(throwAnimationId);
+                            throwAnimationId = null;
+                            // Alien image animation is already running due to class removal in dragEnd
+                        } else {
+                            throwAnimationId =
+                                requestAnimationFrame(animateFrame);
+                        }
+                    }
+                    throwAnimationId = requestAnimationFrame(animateFrame);
+                }
+            });
+            // Cosmos App Logic
+            const cosmosData = {
+                sun: {
+                    title: "The Sun: Our Cosmic Powerhouse",
+                    content: `
+                        <div style="font-family: 'Courier New', monospace; color: #ffd700; margin-bottom: 15px; border-left: 3px solid #ffd700; padding-left: 10px;">
+                            <strong>⚠️ WARNING:</strong> Hot surface. Do not touch. (5,500°C)
+                        </div>
+
+                        <p style="font-size: 1.1rem; line-height: 1.6;">
+                            Imagine a nuclear reactor so massive that 1.3 million Earths could fit inside it. That's our Sun. It's not just a "star"—it's the conductor of our solar system's orchestra, holding everything together with its gravitational grip.
+                        </p>
+
+                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255, 100, 0, 0.3);">
+                            <iframe src="https://www.youtube.com/embed/6tmbeLTHC_0?autoplay=0&mute=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <h3 style="color: #ffaa00; margin-top: 20px;">🔥 The Vibe</h3>
+                        <p>Chaotic, energetic, and absolutely relentless. It's a constant explosion that somehow makes life possible.</p>
+
+                        <img src="https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001435/GSFC_20171208_Archive_e001435~orig.jpg" style="width:100%; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" alt="Solar Flare">
+
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <strong>Cosmic Fact:</strong> The light you see today left the Sun's core about 100,000 years ago. It took that long to fight its way to the surface, but only 8 minutes to reach your eyes!
+                        </div>
+                    `
+                },
+                earth: {
+                    title: "Earth: The Blue Marble",
+                    content: `
+                        <div style="font-family: 'Courier New', monospace; color: #00aaff; margin-bottom: 15px; border-left: 3px solid #00aaff; padding-left: 10px;">
+                            <strong>📍 LOCATION:</strong> Third rock from the Sun.
+                        </div>
+
+                        <p style="font-size: 1.1rem; line-height: 1.6;">
+                            You are here. The only place in the universe (that we know of) where you can get a decent pizza. It's a fragile oasis of water and life floating in a vast, hostile void.
+                        </p>
+
+                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 100, 255, 0.3);">
+                            <iframe src="https://www.youtube.com/embed/iTHUUjTA-LI?si=h7TPono2Gfb3lm8v?autoplay=0&mute=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <h3 style="color: #44ccff; margin-top: 20px;">💧 The Vibe</h3>
+                        <p>Dynamic, wet, and teeming with chaos. From deep ocean trenches to soaring mountains, Earth is the ultimate shapeshifter.</p>
+
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/The_Blue_Marble_%28remastered%29.jpg/1024px-The_Blue_Marble_%28remastered%29.jpg" style="width:100%; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" alt="The Blue Marble">
+
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <strong>Cosmic Fact:</strong> Earth is speeding around the Sun at 67,000 mph (107,000 km/h). You're a space traveler right now, whether you like it or not.
+                        </div>
+                    `
+                },
+                moon: {
+                    title: "The Moon: Night's Watchman",
+                    content: `
+                        <div style="font-family: 'Courier New', monospace; color: #cccccc; margin-bottom: 15px; border-left: 3px solid #cccccc; padding-left: 10px;">
+                            <strong>🌑 STATUS:</strong> Tidally locked. Always watching.
+                        </div>
+
+                        <p style="font-size: 1.1rem; line-height: 1.6;">
+                            Our silent partner in the cosmic dance. It pushes our oceans around and stabilizes our wobble. Without the Moon, Earth would be a dizzy, unstable mess.
+                        </p>
+
+                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(200, 200, 200, 0.3);">
+                            <iframe src="https://www.youtube.com/embed/nr5Pj6GQL2o?autoplay=0&mute=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <h3 style="color: #eeeeee; margin-top: 20px;">🗿 The Vibe</h3>
+                        <p>Quiet, dusty, and full of history. It's a museum of the early solar system, covered in footprints that will last forever.</p>
+
+                        <img src="https://images-assets.nasa.gov/image/as11-40-5875/as11-40-5875~orig.jpg" style="width:100%; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" alt="Buzz Aldrin on the Moon">
+
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <strong>Cosmic Fact:</strong> The Moon is slowly drifting away from us at a rate of about 3.8 cm per year. Bye bye, Moon!
+                        </div>
+                    `
+                },
+                saturn: {
+                    title: "Saturn: The Lord of the Rings",
+                    content: `
+                        <div style="font-family: 'Courier New', monospace; color: #e0c080; margin-bottom: 15px; border-left: 3px solid #e0c080; padding-left: 10px;">
+                            <strong>💍 ACCESSORY:</strong> Best jewelry in the galaxy.
+                        </div>
+
+                        <p style="font-size: 1.1rem; line-height: 1.6;">
+                            The show-off of the solar system. Saturn isn't just a planet; it's a mini solar system with its own diverse family of moons and those iconic rings made of ice and rock.
+                        </p>
+
+                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(210, 180, 140, 0.3);">
+                            <iframe src="https://www.youtube.com/embed/xrGAQCq9BMU?autoplay=0&mute=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <h3 style="color: #f0d090; margin-top: 20px;">🪐 The Vibe</h3>
+                        <p>Majestic, mysterious, and windy. Winds here can reach 1,800 km/h. Hold onto your hat.</p>
+
+                        <img src="https://images-assets.nasa.gov/image/PIA18249/PIA18249~orig.jpg" style="width:100%; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" alt="Saturn's Rings">
+
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <strong>Cosmic Fact:</strong> Saturn is the only planet in our solar system that is less dense than water. If you had a bathtub big enough, it would float!
+                        </div>
+                    `
+                }
+            };
+
+            function openObject(id) {
+                // Play click sound
+                playSound('click-sound');
+                
+                const clickedElement = document.getElementById(id);
+                const allObjects = document.querySelectorAll('.cosmos-object');
+                
+                // Get current position of clicked element
+                const rect = clickedElement.getBoundingClientRect();
+                const currentX = rect.left + rect.width / 2;
+                const currentY = rect.top + rect.height / 2;
+                
+                // Calculate target position (center X, 50% Y with bottom at center)
+                const targetX = window.innerWidth / 2;
+                const targetY = window.innerHeight / 2;
+                
+                // Calculate translation needed - use actual element size for scaled offset
+                const elementHeight = rect.height;
+                const translateX = targetX - currentX;
+                const translateY = targetY - currentY - (elementHeight * 2.5 / 2); // Account for scaled size
+                
+                // Store translation values for reading mode
+                clickedElement.style.setProperty('--translate-x', `${translateX}px`);
+                clickedElement.style.setProperty('--translate-y', `${translateY}px`);
+                
+                // Determine which objects should slide left or right
+                let clickedIndex = -1;
+                allObjects.forEach((obj, index) => {
+                    if (obj.id === id) {
+                        clickedIndex = index;
+                    }
+                });
+                
+                // Apply slide classes based on position relative to clicked object
+                allObjects.forEach((obj, index) => {
+                    if (index < clickedIndex) {
+                        obj.classList.add('slide-left');
+                    } else if (index > clickedIndex) {
+                        obj.classList.add('slide-right');
+                    }
+                });
+                
+                document.body.classList.add('zoomed');
+                clickedElement.classList.add('active');
+                
+                // Apply the transform to zoom and move to center
+                clickedElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(2.5)`;
+                
+                const data = cosmosData[id];
+                document.getElementById('article-title').innerText = data.title;
+                document.getElementById('article-content').innerHTML = data.content;
+                
+                // Add wheel listener for reading mode
+                const articleView = document.getElementById('article-view');
+                articleView.addEventListener('wheel', handleArticleWheel, { passive: false });
+            }
+
+            function handleArticleWheel(e) {
+                const articleView = document.getElementById('article-view');
+                
+                if (!document.body.classList.contains('reading-mode')) {
+                    // Scrolling down - enter reading mode
+                    if (e.deltaY > 0) {
+                        e.preventDefault();
+                        document.body.classList.add('reading-mode');
+                        // Enable scrolling after transition
+                        setTimeout(() => {
+                            articleView.style.overflowY = 'auto';
+                        }, 600);
+                    }
+                } else {
+                    // In reading mode - check if at top and scrolling up
+                    if (articleView.scrollTop === 0 && e.deltaY < 0) {
+                        e.preventDefault();
+                        document.body.classList.remove('reading-mode');
+                        articleView.style.overflowY = 'hidden';
+                    }
+                }
+            }
+
+            function closeObject() {
+                // Play whoosh sound
+                playSound('whoosh-sound');
+                
+                document.body.classList.remove('zoomed', 'reading-mode');
+                const articleView = document.getElementById('article-view');
+                articleView.removeEventListener('wheel', handleArticleWheel);
+                articleView.scrollTop = 0;
+                articleView.style.overflowY = 'hidden';
+                
+                document.querySelectorAll('.cosmos-object').forEach(el => {
+                    el.classList.remove('active', 'slide-left', 'slide-right');
+                    el.style.transform = '';
+                });
+            }
+
+            // Audio System
+            let audioEnabled = true;
+            const bgMusic = document.getElementById('bg-music');
+            bgMusic.volume = 0.3; // Set background music volume lower
+
+            function startExperience() {
+                const overlay = document.getElementById('start-overlay');
+                overlay.classList.add('hidden');
+                
+                // Start background music
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                
+                // Play initial whoosh
+                playSound('whoosh-sound');
+            }
+
+            function playSound(soundId) {
+                if (!audioEnabled) return;
+                const sound = document.getElementById(soundId);
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.volume = 0.5;
+                    sound.play().catch(e => console.log('Sound play failed:', e));
+                }
+            }
+
+            function toggleAudio() {
+                audioEnabled = !audioEnabled;
+                const btn = document.getElementById('audio-toggle');
+                
+                if (audioEnabled) {
+                    btn.innerHTML = '🔊';
+                    btn.classList.remove('muted');
+                    bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                } else {
+                    btn.innerHTML = '🔇';
+                    btn.classList.add('muted');
+                    bgMusic.pause();
+                }
+            }
+
+            // Add click sound to back button
+            document.querySelector('.back-btn').addEventListener('click', () => {
+                playSound('click-sound');
+            });
+
+            // Add click sound to audio toggle button
+            document.getElementById('audio-toggle').addEventListener('click', () => {
+                playSound('click-sound');
+            });
+
+            // Add click sound to start button
+            document.querySelector('.start-btn').addEventListener('click', () => {
+                playSound('click-sound');
+            });
+        </script>
+    </body>
+</html>
